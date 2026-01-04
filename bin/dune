@@ -1,0 +1,4 @@
+(executable
+ (public_name rizzo_demo)
+ (name main)
+ (libraries rizzo unix threads))

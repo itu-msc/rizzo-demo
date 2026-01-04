@@ -1,0 +1,56 @@
+open! Rizzo.Types
+open! Rizzo.Signal
+open! Rizzo.Channel
+
+let paper_example () =
+    (* Setup input channels, signals *)
+    let console_channel = console_input () in
+    let port_channel = port_input 9000 in
+
+    let console_in = mkSig_of_channel console_channel in
+    let port_in = mkSig_of_channel port_channel in
+
+    (* Write input to console out *)
+    console_outputL (mapL (fun s -> "From console: " ^ s) console_in);
+    console_outputL (mapL (fun s -> "From port: " ^ s) port_in);
+
+    (* Send console input to port output *)
+    port_outputL Unix.inet_addr_loopback 9000 console_in;
+
+    (* Create clock signal to sample time every second *)
+    let every_second, every_second_stop = clock_signal 1.0 in
+    let start_time = head every_second in
+
+    (* Signal that only updates on "time" commands *)
+    let time_filter = filterL (fun s -> s = "time") console_in in
+    
+    (* Sample the clock when time command has been registered *)
+    let sampled_console = sampleL time_filter every_second in
+
+    (* Output the time to the console *)
+    let formatted =
+      (mapL (fun (_, f) -> string_of_float (f -. start_time))
+          sampled_console) in
+    console_outputL formatted;
+
+    (* Start the event loop *)
+    start_event_loop ();
+    (* Stop the clock when the event loop is over *)
+    every_second_stop ()
+
+let growing_heap_example () =
+  let g = ref None in
+  let timer, _ = clock_signal 0.1 in
+  g := Some timer;
+  start_event_loop ()
+
+let () =
+  print_endline "Select an example to run:";
+  print_endline "1. Paper example";
+  print_endline "2. Growing heap example";
+  print_string "Enter your choice (1 or 2): ";
+  flush stdout;
+  match read_line () with
+  | "1" -> paper_example ()
+  | "2" -> growing_heap_example ()
+  | _ -> print_endline "Invalid choice"
