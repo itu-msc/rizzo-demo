@@ -2,7 +2,7 @@ open! Rizzo.Types
 open! Rizzo.Signal
 open! Rizzo.Channel
 
-let paper_example () =
+let print_time_example () =
     (* Setup input channels, signals *)
     let console_channel = console_input () in
     let console_in = mkSig_of_channel console_channel in
@@ -52,13 +52,13 @@ let growing_heap_example () =
 
 let () =
   print_endline "Select an example to run:";
-  print_endline "1. Paper example";
-  print_endline "2. Growing heap example";
-  print_endline "3. Time steps example";
+  print_endline "1. Print time example";
+  print_endline "2. Time steps example";
+  print_endline "3. Growing heap example";
   print_string "Enter your choice (1, 2 or 3): ";
   flush stdout;
   match read_line () with
-  | "1" -> paper_example ()
-  | "2" -> growing_heap_example ()
-  | "3" -> time_step_example ()
+  | "1" -> print_time_example ()
+  | "2" -> time_step_example ()
+  | "3" -> growing_heap_example ()
   | _ -> print_endline "Invalid choice"
